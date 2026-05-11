@@ -1,0 +1,90 @@
+<div class="page">
+  <header class="topbar">
+    <div class="title">
+      <h1>User Dashboard</h1>
+      <p>Users, roles, and distribution overview.</p>
+    </div>
+
+    <button
+      class="primary-btn"
+      type="button"
+      (click)="openUserForm()"
+      [disabled]="isLoadingUserForm || isUserFormOpen"
+    >
+      <span>Add User</span>
+      <span
+        class="spinner"
+        *ngIf="isLoadingUserForm"
+        aria-label="Loading"
+      ></span>
+    </button>
+  </header>
+
+  <section class="content">
+    <div class="card chart-card">
+      <div class="card-header">
+        <h2>Role Distribution</h2>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas #roleChart></canvas>
+      </div>
+    </div>
+
+    <div class="card table-card">
+      <div class="card-header table-header">
+        <h2>Users</h2>
+
+        <div class="pagination">
+          <button
+            class="secondary-btn"
+            type="button"
+            (click)="prevPage()"
+            [disabled]="currentPage === 1"
+          >
+            Previous
+          </button>
+
+          <div class="page-info">Page {{ currentPage }} of {{ totalPages }}</div>
+
+          <button
+            class="secondary-btn"
+            type="button"
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let user of pagedUsers; trackBy: trackByEmail">
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <span
+                  class="role-pill"
+                  [ngClass]="user.role.toLowerCase()"
+                  >{{ user.role }}</span
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <ng-template #modalHost></ng-template>
+</div>

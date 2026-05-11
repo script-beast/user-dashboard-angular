@@ -1,0 +1,23 @@
+/* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	background: rgba(28, 73, 128, 0.03);
+	color: #383838;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+button,
+input,
+select {
+	font: inherit;
+}
+

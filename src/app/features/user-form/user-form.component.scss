@@ -1,0 +1,138 @@
+:host {
+  display: contents;
+  --primary-dark: #383838;
+  --primary-blue: #1c4980;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.modal {
+  width: min(560px, 100%);
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.icon-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: var(--primary-dark);
+  font-size: 22px;
+  line-height: 48px;
+  text-align: center;
+}
+
+.icon-btn:hover {
+  background: rgba(28, 73, 128, 0.06);
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+label {
+  font-weight: 700;
+  color: rgba(56, 56, 56, 0.9);
+}
+
+input,
+select {
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  padding: 0 12px;
+  font: inherit;
+  background: #ffffff;
+  color: var(--primary-dark);
+  outline: none;
+}
+
+input::placeholder {
+  color: rgba(56, 56, 56, 0.55);
+}
+
+input:focus,
+select:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(28, 73, 128, 0.15);
+}
+
+.error {
+  color: #b00020;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(28, 73, 128, 0.12);
+}
+
+.primary-btn,
+.secondary-btn {
+  height: 48px;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.primary-btn {
+  border: 0;
+  background: var(--primary-blue);
+  color: #ffffff;
+}
+
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  background: #ffffff;
+  border: 1px solid rgba(28, 73, 128, 0.35);
+  color: var(--primary-blue);
+}
+
+.secondary-btn:hover {
+  background: rgba(28, 73, 128, 0.06);
+}
