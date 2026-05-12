@@ -4,8 +4,11 @@ import {
   ChangeDetectorRef,
   Component,
   ComponentRef,
+  createNgModule,
   ElementRef,
+  EnvironmentInjector,
   EventEmitter,
+  NgModuleRef,
   OnDestroy,
   OnInit,
   Type,
@@ -50,10 +53,12 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
   private readonly userFormDestroy$ = new Subject<void>();
   private chart: PieChart | null = null;
   private userFormRef: ComponentRef<UserFormComponentContract> | null = null;
+  private userFormModuleRef: NgModuleRef<unknown> | null = null;
 
   constructor(
     private readonly userService: UserService,
     private readonly cdr: ChangeDetectorRef,
+    private readonly environmentInjector: EnvironmentInjector,
   ) {}
 
   get totalPages(): number {
@@ -114,13 +119,24 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     this.cdr.markForCheck();
 
     try {
-      const { UserFormComponent } = await import('../user-form/user-form.module');
+      const { UserFormComponent, UserFormModule } = await import(
+        '../user-form/user-form.module'
+      );
 
       this.userFormDestroy$.next();
       this.modalHost.clear();
 
+      this.userFormModuleRef?.destroy();
+      this.userFormModuleRef = createNgModule(
+        UserFormModule,
+        this.environmentInjector,
+      );
+
       const componentRef = this.modalHost.createComponent(
         UserFormComponent as Type<UserFormComponentContract>,
+        {
+          ngModuleRef: this.userFormModuleRef,
+        },
       );
       this.userFormRef = componentRef;
 
@@ -154,6 +170,9 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     this.userFormRef.destroy();
     this.userFormRef = null;
     this.modalHost.clear();
+
+    this.userFormModuleRef?.destroy();
+    this.userFormModuleRef = null;
     this.cdr.markForCheck();
   }
 
@@ -235,5 +254,8 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
 
     this.chart?.destroy();
     this.chart = null;
+
+    this.userFormModuleRef?.destroy();
+    this.userFormModuleRef = null;
   }
 }
