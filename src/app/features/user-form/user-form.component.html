@@ -6,15 +6,13 @@
     aria-labelledby="userFormTitle"
     (click)="$event.stopPropagation()"
   >
-    <div class="header">
-      <h2 id="userFormTitle">Add User</h2>
+    <div class="modal-head">
+      <div class="modal-title">
+        <h2 id="userFormTitle">Add New User</h2>
+        <p>Fill in the details below to add a user</p>
+      </div>
 
-      <button
-        class="icon-btn"
-        type="button"
-        (click)="onCancel()"
-        aria-label="Close"
-      >
+      <button class="icon-btn" type="button" (click)="onCancel()" aria-label="Close">
         ×
       </button>
     </div>
@@ -71,10 +69,10 @@
       </div>
 
       <div class="actions">
-        <button class="secondary-btn" type="button" (click)="onCancel()">Cancel</button>
-        <button class="primary-btn" type="submit">
-          Add User
+        <button class="btn btn--secondary" type="button" (click)="onCancel()">
+          Cancel
         </button>
+        <button class="btn btn--primary" type="submit">Add User</button>
       </div>
     </form>
   </div>

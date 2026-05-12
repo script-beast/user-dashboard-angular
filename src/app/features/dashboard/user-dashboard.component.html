@@ -1,90 +1,180 @@
-<div class="page">
-  <header class="topbar">
-    <div class="title">
-      <h1>User Dashboard</h1>
-      <p>Users, roles, and distribution overview.</p>
+<div class="dashboard">
+  <header class="page-header">
+    <div class="page-header__title">
+      <h1>User Management</h1>
+      <p>Manage and monitor your team</p>
     </div>
 
     <button
-      class="primary-btn"
+      class="add-user-btn"
       type="button"
       (click)="openUserForm()"
       [disabled]="isLoadingUserForm || isUserFormOpen"
     >
+      <span class="add-user-btn__icon" aria-hidden="true">+</span>
       <span>Add User</span>
-      <span
-        class="spinner"
-        *ngIf="isLoadingUserForm"
-        aria-label="Loading"
-      ></span>
     </button>
   </header>
 
-  <section class="content">
-    <div class="card chart-card">
-      <div class="card-header">
-        <h2>Role Distribution</h2>
+  <section class="top-grid" id="overview">
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-left">
+          <div class="stat-icon" aria-hidden="true">👥</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-value">{{ users.length }}</div>
       </div>
 
-      <div class="chart-wrap">
-        <canvas #roleChart></canvas>
+      <div class="stat-card admin">
+        <div class="stat-counter-bucket" aria-hidden="true">
+          <ng-container *ngFor="let user of users">
+            <span
+              class="stat-counter-item"
+              *ngIf="user.role === 'Admin'"
+            ></span>
+          </ng-container>
+        </div>
+
+        <div class="stat-left">
+          <div class="stat-icon" aria-hidden="true">🛡️</div>
+          <div class="stat-label">Admins</div>
+        </div>
+        <div class="stat-value stat-value--counter"></div>
+      </div>
+
+      <div class="stat-card editor">
+        <div class="stat-counter-bucket" aria-hidden="true">
+          <ng-container *ngFor="let user of users">
+            <span
+              class="stat-counter-item"
+              *ngIf="user.role === 'Editor'"
+            ></span>
+          </ng-container>
+        </div>
+
+        <div class="stat-left">
+          <div class="stat-icon" aria-hidden="true">✍️</div>
+          <div class="stat-label">Editors</div>
+        </div>
+        <div class="stat-value stat-value--counter"></div>
+      </div>
+
+      <div class="stat-card viewer">
+        <div class="stat-counter-bucket" aria-hidden="true">
+          <ng-container *ngFor="let user of users">
+            <span
+              class="stat-counter-item"
+              *ngIf="user.role === 'Viewer'"
+            ></span>
+          </ng-container>
+        </div>
+
+        <div class="stat-left">
+          <div class="stat-icon" aria-hidden="true">👁️</div>
+          <div class="stat-label">Viewers</div>
+        </div>
+        <div class="stat-value stat-value--counter"></div>
       </div>
     </div>
 
-    <div class="card table-card">
-      <div class="card-header table-header">
-        <h2>Users</h2>
+    <div class="card chart-card">
+      <div class="card-head">
+        <h2>Role Distribution</h2>
 
-        <div class="pagination">
-          <button
-            class="secondary-btn"
-            type="button"
-            (click)="prevPage()"
-            [disabled]="currentPage === 1"
-          >
-            Previous
-          </button>
-
-          <div class="page-info">Page {{ currentPage }} of {{ totalPages }}</div>
-
-          <button
-            class="secondary-btn"
-            type="button"
-            (click)="nextPage()"
-            [disabled]="currentPage === totalPages"
-          >
-            Next
-          </button>
+        <div class="legend" aria-label="Legend">
+          <div class="legend-chip">
+            <span class="dot admin" aria-hidden="true"></span>
+            <span>Admin</span>
+          </div>
+          <div class="legend-chip">
+            <span class="dot editor" aria-hidden="true"></span>
+            <span>Editor</span>
+          </div>
+          <div class="legend-chip">
+            <span class="dot viewer" aria-hidden="true"></span>
+            <span>Viewer</span>
+          </div>
         </div>
       </div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr *ngFor="let user of pagedUsers; trackBy: trackByEmail">
-              <td>{{ user.name }}</td>
-              <td>{{ user.email }}</td>
-              <td>
-                <span
-                  class="role-pill"
-                  [ngClass]="user.role.toLowerCase()"
-                  >{{ user.role }}</span
-                >
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="chart-body">
+        <div class="chart-canvas">
+          <canvas #roleChart></canvas>
+        </div>
       </div>
     </div>
   </section>
 
+  <section class="card table-card" id="users">
+    <div class="card-head table-head">
+      <h2>All Users</h2>
+
+      <div class="count-badge">
+        <span>{{ users.length }}</span>
+        <span>Users</span>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let user of pagedUsers; trackBy: trackByEmail">
+            <td>
+              <div class="name-cell">
+                <div class="avatar" aria-hidden="true">
+                  {{ user.name.charAt(0) }}
+                </div>
+                <div class="name-text">{{ user.name }}</div>
+              </div>
+            </td>
+            <td>
+              <span class="email">{{ user.email }}</span>
+            </td>
+            <td>
+              <span class="role-pill" [ngClass]="user.role.toLowerCase()">
+                {{ user.role }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button
+        class="page-btn"
+        type="button"
+        (click)="prevPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+
+      <div class="page-info">Page {{ currentPage }} of {{ totalPages }}</div>
+
+      <button
+        class="page-btn"
+        type="button"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </section>
+
   <ng-template #modalHost></ng-template>
+
+  <div class="lazy-overlay" *ngIf="isLoadingUserForm" aria-label="Loading">
+    <div class="lazy-spinner" aria-hidden="true"></div>
+  </div>
 </div>

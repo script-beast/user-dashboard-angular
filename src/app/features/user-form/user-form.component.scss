@@ -1,13 +1,12 @@
 :host {
   display: contents;
-  --primary-dark: #383838;
-  --primary-blue: #1c4980;
 }
 
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(10, 20, 40, 0.55);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,47 +16,73 @@
 
 .modal {
   width: min(560px, 100%);
-  background: #ffffff;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  padding: 20px;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 24px;
+  animation: modalIn 0.28s ease-out;
 }
 
-.header {
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
-.header h2 {
+.modal-title h2 {
   margin: 0;
-  color: var(--primary-dark);
-  font-size: 18px;
-  font-weight: 800;
+  color: var(--text-primary);
+  font-size: var(--font-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.modal-title p {
+  margin: 6px 0 0;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .icon-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  color: var(--primary-dark);
-  font-size: 22px;
-  line-height: 48px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-size: 20px;
+  line-height: 36px;
   text-align: center;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
 }
 
 .icon-btn:hover {
-  background: rgba(28, 73, 128, 0.06);
+  color: var(--text-primary);
+  background: rgba(28, 73, 128, 0.08);
+  transform: translateY(-1px);
 }
 
 .form {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .field {
@@ -65,74 +90,73 @@
   gap: 8px;
 }
 
-label {
+.field label {
+  font-size: var(--font-xs);
   font-weight: 700;
-  color: rgba(56, 56, 56, 0.9);
-}
-
-input,
-select {
-  height: 48px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.22);
-  padding: 0 12px;
-  font: inherit;
-  background: #ffffff;
-  color: var(--primary-dark);
-  outline: none;
-}
-
-input::placeholder {
-  color: rgba(56, 56, 56, 0.55);
-}
-
-input:focus,
-select:focus {
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(28, 73, 128, 0.15);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .error {
-  color: #b00020;
-  font-size: 12px;
-  font-weight: 700;
+  margin-top: 4px;
+  color: var(--danger);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 8px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(28, 73, 128, 0.12);
+  margin-top: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
-.primary-btn,
-.secondary-btn {
+.btn {
   height: 48px;
-  border-radius: 8px;
-  padding: 0 16px;
-  font-weight: 800;
-  cursor: pointer;
+  padding: 0 24px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: var(--font-sm);
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
 }
 
-.primary-btn {
-  border: 0;
-  background: var(--primary-blue);
+.btn--secondary {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
+}
+
+.btn--secondary:hover {
+  background: rgba(28, 73, 128, 0.04);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn--primary {
+  background: var(--primary);
   color: #ffffff;
+  border: 0;
 }
 
-.primary-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.secondary-btn {
-  background: #ffffff;
-  border: 1px solid rgba(28, 73, 128, 0.35);
-  color: var(--primary-blue);
-}
-
-.secondary-btn:hover {
-  background: rgba(28, 73, 128, 0.06);
+.btn--primary:hover {
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }

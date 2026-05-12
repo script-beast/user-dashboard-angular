@@ -1,1 +1,59 @@
-<router-outlet></router-outlet>
+<div class="app-shell">
+	<header class="topbar">
+		<div class="brand" aria-label="UserBoard">
+			<span class="brand-mark" aria-hidden="true"></span>
+			<span class="brand-text">UserBoard</span>
+		</div>
+
+		<nav class="nav" aria-label="Primary">
+			<a class="nav-link" href="#overview">Overview</a>
+			<a class="nav-link" href="#users">Users</a>
+		</nav>
+	</header>
+
+	<main class="app-main">
+		<router-outlet></router-outlet>
+	</main>
+
+	<div class="footer-divider" aria-hidden="true"></div>
+
+	<footer class="footer">
+		<div class="footer-inner">
+			<div class="footer-profile">
+				<div class="footer-name">
+					<span class="footer-emoji" aria-hidden="true">👤</span>
+					<span>Ankit Prajapati</span>
+				</div>
+				<div class="footer-title">Frontend Developer</div>
+			</div>
+
+			<div class="footer-links" aria-label="Links">
+				<a
+					class="footer-btn footer-btn--outline"
+					href="https://www.linkedin.com/in/aprajapati028/"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<span class="footer-btn__icon" aria-hidden="true">🔗</span>
+					<span>LinkedIn</span>
+				</a>
+
+				<a
+					class="footer-btn footer-btn--solid"
+					href="https://aprajapati.vercel.app/"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<span class="footer-btn__icon" aria-hidden="true">🌐</span>
+					<span>Portfolio</span>
+				</a>
+			</div>
+
+			<div class="footer-built">Built with Angular &amp; Chart.js</div>
+		</div>
+
+		<div class="footer-micro">
+			© 2025 Ankit Prajapati · Built with Angular &amp; Chart.js
+		</div>
+	</footer>
+</div>
