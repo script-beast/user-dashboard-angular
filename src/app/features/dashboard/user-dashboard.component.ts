@@ -76,14 +76,12 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngOnInit(): void {
-    this.userService.users$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((users) => {
-        this.users = users;
-        this.ensureValidPage();
-        this.updateChart();
-        this.cdr.markForCheck();
-      });
+    this.userService.users$.pipe(takeUntil(this.destroy$)).subscribe((users) => {
+      this.users = users;
+      this.ensureValidPage();
+      this.updateChart();
+      this.cdr.markForCheck();
+    });
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -119,18 +117,13 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     this.cdr.markForCheck();
 
     try {
-      const { UserFormComponent, UserFormModule } = await import(
-        '../user-form/user-form.module'
-      );
+      const { UserFormComponent, UserFormModule } = await import('../user-form/user-form.module');
 
       this.userFormDestroy$.next();
       this.modalHost.clear();
 
       this.userFormModuleRef?.destroy();
-      this.userFormModuleRef = createNgModule(
-        UserFormModule,
-        this.environmentInjector,
-      );
+      this.userFormModuleRef = createNgModule(UserFormModule, this.environmentInjector);
 
       const componentRef = this.modalHost.createComponent(
         UserFormComponent as Type<UserFormComponentContract>,
@@ -147,7 +140,12 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
       componentRef.instance.userAdded
         .pipe(takeUntil(this.destroy$), takeUntil(this.userFormDestroy$))
         .subscribe((user) => {
-          this.userService.addUser(user);
+          try {
+            this.userService.addUser(user);
+          } catch (error) {
+            alert((error as Error).message);
+          }
+
           this.closeUserForm();
         });
 
@@ -160,6 +158,68 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
       this.isLoadingUserForm = false;
       this.cdr.markForCheck();
     }
+  }
+
+  async openUserEditForm(): Promise<void> {
+    if (this.isLoadingUserForm || this.userFormRef) {
+      return;
+    }
+
+    this.isLoadingUserForm = true;
+    this.cdr.markForCheck();
+
+    try {
+      const { UserFormComponent, UserFormModule } = await import('../user-form/user-form.module');
+
+      this.userFormDestroy$.next();
+      this.modalHost.clear();
+
+      this.userFormModuleRef?.destroy();
+      this.userFormModuleRef = createNgModule(UserFormModule, this.environmentInjector);
+
+      const componentRef = this.modalHost.createComponent(
+        UserFormComponent as Type<UserFormComponentContract>,
+        {
+          ngModuleRef: this.userFormModuleRef,
+        },
+      );
+      this.userFormRef = componentRef;
+
+      componentRef.onDestroy(() => {
+        this.userFormDestroy$.next();
+      });
+
+      componentRef.instance.userAdded
+        .pipe(takeUntil(this.destroy$), takeUntil(this.userFormDestroy$))
+        .subscribe((user) => {
+          try {
+            console.log(user);
+            this.userService.updateUser(user);
+          } catch (error) {
+            alert((error as Error).message);
+          }
+
+          this.closeUserForm();
+        });
+
+      componentRef.instance.close
+        .pipe(takeUntil(this.destroy$), takeUntil(this.userFormDestroy$))
+        .subscribe(() => {
+          this.closeUserForm();
+        });
+    } finally {
+      this.isLoadingUserForm = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  async search(search:any ) :  Promise<void> {
+    console.log(search)
+    this.userService.search(search);
+  }
+
+  async deleteUser(userIdx: number): Promise<void> {
+    this.userService.deleteUser(userIdx);
   }
 
   closeUserForm(): void {
@@ -237,11 +297,7 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
       counts[user.role] += 1;
     }
 
-    this.chart.data.datasets[0].data = [
-      counts.Admin,
-      counts.Editor,
-      counts.Viewer,
-    ];
+    this.chart.data.datasets[0].data = [counts.Admin, counts.Editor, counts.Viewer];
     this.chart.update();
   }
 

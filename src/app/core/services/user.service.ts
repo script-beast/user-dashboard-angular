@@ -1,17 +1,17 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, throwError } from 'rxjs';
 
 import { User } from '../../shared/models/user.model';
 
 const USERS_STORAGE_KEY = 'user-dashboard.users.v1';
 
 const SEED_USERS: User[] = [
-  { name: 'Aarav Sharma', email: 'aarav.sharma@example.com', role: 'Admin' },
-  { name: 'Isha Mehta', email: 'isha.mehta@example.com', role: 'Editor' },
-  { name: 'Rohan Kapoor', email: 'rohan.kapoor@example.com', role: 'Viewer' },
-  { name: 'Neha Verma', email: 'neha.verma@example.com', role: 'Editor' },
-  { name: 'Kabir Singh', email: 'kabir.singh@example.com', role: 'Viewer' },
+  { name: 'Aarav Sharma', email: 'aarav.sharma@example.com', role: 'Admin', idx: 0 },
+  { name: 'Isha Mehta', email: 'isha.mehta@example.com', role: 'Editor', idx: 1 },
+  { name: 'Rohan Kapoor', email: 'rohan.kapoor@example.com', role: 'Viewer', idx: 2 },
+  { name: 'Neha Verma', email: 'neha.verma@example.com', role: 'Editor', idx: 3 },
+  { name: 'Kabir Singh', email: 'kabir.singh@example.com', role: 'Viewer', idx: 4 },
 ];
 
 function isRole(value: unknown): value is User['role'] {
@@ -39,6 +39,7 @@ function isUserArray(value: unknown): value is User[] {
   providedIn: 'root',
 })
 export class UserService {
+  private allUser: User[] = SEED_USERS;
   private readonly usersSubject = new BehaviorSubject<User[]>(SEED_USERS);
 
   readonly users$ = this.usersSubject.asObservable();
@@ -51,9 +52,47 @@ export class UserService {
   }
 
   addUser(user: User): void {
-    const updated = [...this.usersSubject.value, user];
+    const findSAme = this.usersSubject.value.find((use) => use.email === user.email);
+    if (findSAme) {
+      throw new Error('User with this email already exists');
+    }
+    const updated = [...this.usersSubject.value, { ...user, idx: this.usersSubject.value.length }];
     this.usersSubject.next(updated);
+    this.allUser = updated;
     this.writeUsersToStorage(updated);
+  }
+
+  updateUser(user: User): void {
+    // const findSAme = this.usersSubject.value.findIndex(
+    //   (use, id) => use.email === user.email && id === user.idx,
+    // );
+    // if (findSAme === -1) {
+    //   throw new Error('User with this email already exists');
+    // }
+    // console.log(findSAme)
+
+    const a = this.usersSubject.value;
+    a[user.idx] = user;
+    const updated = [...a];
+    this.usersSubject.next(updated);
+    this.allUser = updated;
+    this.writeUsersToStorage(updated);
+  }
+
+  deleteUser(userIdx: number) {
+    const updated = this.usersSubject.value;
+    updated.splice(userIdx, 1);
+    this.usersSubject.next(updated);
+    this.allUser = updated;
+    this.writeUsersToStorage(updated);
+  }
+
+  search(search: string) {
+    const updated = this.allUser.filter(
+      (se) => se.name.includes(search) || se.email.includes(search),
+    );
+    this.usersSubject.next(updated)
+    // this.writeUsersToStorage(updated);
   }
 
   getUsers(): User[] {

@@ -29,10 +29,7 @@
       <div class="stat-card admin">
         <div class="stat-counter-bucket" aria-hidden="true">
           <ng-container *ngFor="let user of users">
-            <span
-              class="stat-counter-item"
-              *ngIf="user.role === 'Admin'"
-            ></span>
+            <span class="stat-counter-item" *ngIf="user.role === 'Admin'"></span>
           </ng-container>
         </div>
 
@@ -46,10 +43,7 @@
       <div class="stat-card editor">
         <div class="stat-counter-bucket" aria-hidden="true">
           <ng-container *ngFor="let user of users">
-            <span
-              class="stat-counter-item"
-              *ngIf="user.role === 'Editor'"
-            ></span>
+            <span class="stat-counter-item" *ngIf="user.role === 'Editor'"></span>
           </ng-container>
         </div>
 
@@ -63,10 +57,7 @@
       <div class="stat-card viewer">
         <div class="stat-counter-bucket" aria-hidden="true">
           <ng-container *ngFor="let user of users">
-            <span
-              class="stat-counter-item"
-              *ngIf="user.role === 'Viewer'"
-            ></span>
+            <span class="stat-counter-item" *ngIf="user.role === 'Viewer'"></span>
           </ng-container>
         </div>
 
@@ -110,6 +101,8 @@
     <div class="card-head table-head">
       <h2>All Users</h2>
 
+      <input (change) = "e => search(e)"/>
+
       <div class="count-badge">
         <span>{{ users.length }}</span>
         <span>Users</span>
@@ -123,6 +116,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
+            <th>Action</th>
           </tr>
         </thead>
 
@@ -144,18 +138,17 @@
                 {{ user.role }}
               </span>
             </td>
+            <td>
+              <button type="button" (click)="openUserEditForm(user)">Edit</button>
+              <button type="button" (click)="deleteUser(user.idx)">Delete</button>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="pagination">
-      <button
-        class="page-btn"
-        type="button"
-        (click)="prevPage()"
-        [disabled]="currentPage === 1"
-      >
+      <button class="page-btn" type="button" (click)="prevPage()" [disabled]="currentPage === 1">
         Previous
       </button>
 

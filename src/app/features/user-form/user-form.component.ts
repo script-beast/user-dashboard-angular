@@ -80,6 +80,7 @@ export class UserFormComponent {
       name: this.form.controls.name.value.trim(),
       email: this.form.controls.email.value.trim(),
       role,
+      idx: 0
     };
 
     this.userAdded.emit(user);
