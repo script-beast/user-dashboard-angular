@@ -25,6 +25,7 @@ type PieChart = import('chart.js').Chart<'pie', number[], string>;
 interface UserFormComponentContract {
   userAdded: EventEmitter<User>;
   close: EventEmitter<void>;
+  initialUser?: User | null;
 }
 
 @Component({
@@ -36,6 +37,8 @@ interface UserFormComponentContract {
 })
 export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private static chartJsRegistered = false;
+
+  searchTerm: string = '';
 
   users: readonly User[] = [];
   currentPage = 1;
@@ -160,7 +163,7 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  async openUserEditForm(): Promise<void> {
+  async openUserEditForm(user: User): Promise<void> {
     if (this.isLoadingUserForm || this.userFormRef) {
       return;
     }
@@ -184,6 +187,20 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
         },
       );
       this.userFormRef = componentRef;
+
+      // Prefill form with selected user for editing (use method if available)
+      const inst = componentRef.instance as unknown as {
+        prefill?: (u: User | null) => void;
+        initialUser?: User | null;
+      };
+      if (typeof inst.prefill === 'function') {
+        inst.prefill(user);
+      } else {
+        inst.initialUser = user;
+      }
+
+      // Ensure the dynamically created component updates its view
+      componentRef.changeDetectorRef.detectChanges();
 
       componentRef.onDestroy(() => {
         this.userFormDestroy$.next();
@@ -213,9 +230,9 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  async search(search:any ) :  Promise<void> {
-    console.log(search)
-    this.userService.search(search);
+  async filterUsers(): Promise<void> {
+    console.log(this.searchTerm);
+    this.userService.search(this.searchTerm);
   }
 
   async deleteUser(userIdx: number): Promise<void> {

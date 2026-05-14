@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
+  Input,
   Output,
 } from '@angular/core';
 import {
@@ -35,6 +36,8 @@ function roleIn(
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserFormComponent {
+  @Input() initialUser: User | null = null;
+
   @Output() userAdded = new EventEmitter<User>();
   @Output() close = new EventEmitter<void>();
 
@@ -61,6 +64,19 @@ export class UserFormComponent {
     });
   }
 
+  // Programmatic prefill method — call this after creating the component instance
+  prefill(user: User | null): void {
+    this.initialUser = user;
+    if (!user) {
+      this.form.reset({ name: '', email: '', role: null });
+      return;
+    }
+
+    this.form.controls.name.setValue(user.name);
+    this.form.controls.email.setValue(user.email);
+    this.form.controls.role.setValue(user.role);
+  }
+
   onCancel(): void {
     this.close.emit();
   }
@@ -80,7 +96,7 @@ export class UserFormComponent {
       name: this.form.controls.name.value.trim(),
       email: this.form.controls.email.value.trim(),
       role,
-      idx: 0
+      idx: this.initialUser?.idx ?? 0,
     };
 
     this.userAdded.emit(user);

@@ -101,7 +101,12 @@
     <div class="card-head table-head">
       <h2>All Users</h2>
 
-      <input (change) = "e => search(e)"/>
+      <input
+        type="text"
+        placeholder="Search users..."
+        [value]="searchTerm"
+        (input)="searchTerm = $any($event.target).value; filterUsers()"
+      />
 
       <div class="count-badge">
         <span>{{ users.length }}</span>
@@ -121,28 +126,30 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let user of pagedUsers; trackBy: trackByEmail">
-            <td>
-              <div class="name-cell">
-                <div class="avatar" aria-hidden="true">
-                  {{ user.name.charAt(0) }}
+          @for (user of pagedUsers; track user.email) {
+            <tr>
+              <td>
+                <div class="name-cell">
+                  <div class="avatar" aria-hidden="true">
+                    {{ user.name.charAt(0) }}
+                  </div>
+                  <div class="name-text">{{ user.name }}</div>
                 </div>
-                <div class="name-text">{{ user.name }}</div>
-              </div>
-            </td>
-            <td>
-              <span class="email">{{ user.email }}</span>
-            </td>
-            <td>
-              <span class="role-pill" [ngClass]="user.role.toLowerCase()">
-                {{ user.role }}
-              </span>
-            </td>
-            <td>
-              <button type="button" (click)="openUserEditForm(user)">Edit</button>
-              <button type="button" (click)="deleteUser(user.idx)">Delete</button>
-            </td>
-          </tr>
+              </td>
+              <td>
+                <span class="email">{{ user.email }}</span>
+              </td>
+              <td>
+                <span class="role-pill" [ngClass]="user.role.toLowerCase()">
+                  {{ user.role }}
+                </span>
+              </td>
+              <td>
+                <button type="button" (click)="openUserEditForm(user)">Edit</button>
+                <button type="button" (click)="deleteUser(user.idx)">Delete</button>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>

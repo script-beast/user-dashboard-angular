@@ -52,36 +52,46 @@ export class UserService {
   }
 
   addUser(user: User): void {
-    const findSAme = this.usersSubject.value.find((use) => use.email === user.email);
-    if (findSAme) {
+    const findSame = this.usersSubject.value.find((use) => use.email === user.email);
+    if (findSame) {
       throw new Error('User with this email already exists');
     }
-    const updated = [...this.usersSubject.value, { ...user, idx: this.usersSubject.value.length }];
+
+    const nextIdx = this.allUser.length > 0 ? Math.max(...this.allUser.map((u) => u.idx)) + 1 : 0;
+    const updated = [...this.usersSubject.value, { ...user, idx: nextIdx }];
     this.usersSubject.next(updated);
     this.allUser = updated;
     this.writeUsersToStorage(updated);
   }
 
   updateUser(user: User): void {
-    // const findSAme = this.usersSubject.value.findIndex(
-    //   (use, id) => use.email === user.email && id === user.idx,
-    // );
-    // if (findSAme === -1) {
-    //   throw new Error('User with this email already exists');
-    // }
-    // console.log(findSAme)
+    const current = this.usersSubject.value;
+    const index = current.findIndex((u) => u.idx === user.idx);
+    if (index === -1) {
+      throw new Error('User not found');
+    }
 
-    const a = this.usersSubject.value;
-    a[user.idx] = user;
-    const updated = [...a];
+    const otherWithEmail = current.find((u) => u.email === user.email && u.idx !== user.idx);
+    if (otherWithEmail) {
+      throw new Error('Another user with this email already exists');
+    }
+
+    const updated = [...current];
+    updated[index] = { ...user };
     this.usersSubject.next(updated);
     this.allUser = updated;
     this.writeUsersToStorage(updated);
   }
 
   deleteUser(userIdx: number) {
-    const updated = this.usersSubject.value;
-    updated.splice(userIdx, 1);
+    const current = this.usersSubject.value;
+    const index = current.findIndex((u) => u.idx === userIdx);
+    if (index === -1) {
+      return;
+    }
+
+    const updated = [...current];
+    updated.splice(index, 1);
     this.usersSubject.next(updated);
     this.allUser = updated;
     this.writeUsersToStorage(updated);
