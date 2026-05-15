@@ -3,17 +3,10 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ComponentRef,
-  createNgModule,
   ElementRef,
-  EnvironmentInjector,
-  EventEmitter,
-  NgModuleRef,
   OnDestroy,
   OnInit,
-  Type,
   ViewChild,
-  ViewContainerRef,
 } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -21,12 +14,6 @@ import { UserService } from '../../core/services/user.service';
 import { User } from '../../shared/models/user.model';
 
 type PieChart = import('chart.js').Chart<'pie', number[], string>;
-
-interface UserFormComponentContract {
-  userAdded: EventEmitter<User>;
-  close: EventEmitter<void>;
-  initialUser?: User | null;
-}
 
 @Component({
   selector: 'app-user-dashboard',
@@ -44,24 +31,18 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
   currentPage = 1;
   readonly pageSize = 5;
 
-  isLoadingUserForm = false;
-
   @ViewChild('roleChart', { static: true })
   chartRef!: ElementRef<HTMLCanvasElement>;
 
-  @ViewChild('modalHost', { read: ViewContainerRef, static: true })
-  modalHost!: ViewContainerRef;
-
   private readonly destroy$ = new Subject<void>();
-  private readonly userFormDestroy$ = new Subject<void>();
   private chart: PieChart | null = null;
-  private userFormRef: ComponentRef<UserFormComponentContract> | null = null;
-  private userFormModuleRef: NgModuleRef<unknown> | null = null;
+
+  isUserFormOpen = false;
+  currentEditUser: User | null = null;
 
   constructor(
     private readonly userService: UserService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly environmentInjector: EnvironmentInjector,
   ) {}
 
   get totalPages(): number {
@@ -72,10 +53,6 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
   get pagedUsers(): readonly User[] {
     const start = (this.currentPage - 1) * this.pageSize;
     return this.users.slice(start, start + this.pageSize);
-  }
-
-  get isUserFormOpen(): boolean {
-    return this.userFormRef !== null;
   }
 
   ngOnInit(): void {
@@ -111,123 +88,30 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     this.cdr.markForCheck();
   }
 
-  async openUserForm(): Promise<void> {
-    if (this.isLoadingUserForm || this.userFormRef) {
-      return;
-    }
-
-    this.isLoadingUserForm = true;
-    this.cdr.markForCheck();
-
+  onUserAdded(user: User, isEdit: boolean = false): void {
+    console.log(user);
     try {
-      const { UserFormComponent, UserFormModule } = await import('../user-form/user-form.module');
-
-      this.userFormDestroy$.next();
-      this.modalHost.clear();
-
-      this.userFormModuleRef?.destroy();
-      this.userFormModuleRef = createNgModule(UserFormModule, this.environmentInjector);
-
-      const componentRef = this.modalHost.createComponent(
-        UserFormComponent as Type<UserFormComponentContract>,
-        {
-          ngModuleRef: this.userFormModuleRef,
-        },
-      );
-      this.userFormRef = componentRef;
-
-      componentRef.onDestroy(() => {
-        this.userFormDestroy$.next();
-      });
-
-      componentRef.instance.userAdded
-        .pipe(takeUntil(this.destroy$), takeUntil(this.userFormDestroy$))
-        .subscribe((user) => {
-          try {
-            this.userService.addUser(user);
-          } catch (error) {
-            alert((error as Error).message);
-          }
-
-          this.closeUserForm();
-        });
-
-      componentRef.instance.close
-        .pipe(takeUntil(this.destroy$), takeUntil(this.userFormDestroy$))
-        .subscribe(() => {
-          this.closeUserForm();
-        });
-    } finally {
-      this.isLoadingUserForm = false;
-      this.cdr.markForCheck();
+      if (isEdit) this.userService.updateUser(user);
+      else this.userService.addUser(user);
+    } catch (error) {
+      alert((error as Error).message);
     }
   }
 
-  async openUserEditForm(user: User): Promise<void> {
-    if (this.isLoadingUserForm || this.userFormRef) {
+  openUserForm(): void {
+    if (this.isUserFormOpen) {
       return;
     }
+    this.currentEditUser = null;
+    this.isUserFormOpen = true;
+  }
 
-    this.isLoadingUserForm = true;
-    this.cdr.markForCheck();
-
-    try {
-      const { UserFormComponent, UserFormModule } = await import('../user-form/user-form.module');
-
-      this.userFormDestroy$.next();
-      this.modalHost.clear();
-
-      this.userFormModuleRef?.destroy();
-      this.userFormModuleRef = createNgModule(UserFormModule, this.environmentInjector);
-
-      const componentRef = this.modalHost.createComponent(
-        UserFormComponent as Type<UserFormComponentContract>,
-        {
-          ngModuleRef: this.userFormModuleRef,
-        },
-      );
-      this.userFormRef = componentRef;
-
-      // Prefill form with selected user for editing (use method if available)
-      const inst = componentRef.instance as unknown as {
-        prefill?: (u: User | null) => void;
-        initialUser?: User | null;
-      };
-      if (typeof inst.prefill === 'function') {
-        inst.prefill(user);
-      } else {
-        inst.initialUser = user;
-      }
-
-      // Ensure the dynamically created component updates its view
-      componentRef.changeDetectorRef.detectChanges();
-
-      componentRef.onDestroy(() => {
-        this.userFormDestroy$.next();
-      });
-
-      componentRef.instance.userAdded
-        .pipe(takeUntil(this.destroy$), takeUntil(this.userFormDestroy$))
-        .subscribe((user) => {
-          try {
-            console.log(user);
-            this.userService.updateUser(user);
-          } catch (error) {
-            alert((error as Error).message);
-          }
-
-          this.closeUserForm();
-        });
-
-      componentRef.instance.close
-        .pipe(takeUntil(this.destroy$), takeUntil(this.userFormDestroy$))
-        .subscribe(() => {
-          this.closeUserForm();
-        });
-    } finally {
-      this.isLoadingUserForm = false;
-      this.cdr.markForCheck();
+  openUserEditForm(user: User): void {
+    if (this.isUserFormOpen) {
+      return;
     }
+    this.currentEditUser = user;
+    this.isUserFormOpen = true;
   }
 
   async filterUsers(): Promise<void> {
@@ -240,17 +124,26 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   closeUserForm(): void {
-    if (!this.userFormRef) {
-      return;
+    this.isUserFormOpen = false;
+    this.currentEditUser = null;
+  }
+
+  onUserFormSubmit(user: User): void {
+    try {
+      if (this.currentEditUser) {
+        console.log(user);
+        this.userService.updateUser(user);
+      } else {
+        this.userService.addUser(user);
+      }
+    } catch (error) {
+      alert((error as Error).message);
     }
+    this.closeUserForm();
+  }
 
-    this.userFormRef.destroy();
-    this.userFormRef = null;
-    this.modalHost.clear();
-
-    this.userFormModuleRef?.destroy();
-    this.userFormModuleRef = null;
-    this.cdr.markForCheck();
+  onUserFormClose(): void {
+    this.closeUserForm();
   }
 
   private ensureValidPage(): void {
@@ -322,13 +215,7 @@ export class UserDashboardComponent implements OnInit, AfterViewInit, OnDestroy 
     this.destroy$.next();
     this.destroy$.complete();
 
-    this.userFormDestroy$.next();
-    this.userFormDestroy$.complete();
-
     this.chart?.destroy();
     this.chart = null;
-
-    this.userFormModuleRef?.destroy();
-    this.userFormModuleRef = null;
   }
 }

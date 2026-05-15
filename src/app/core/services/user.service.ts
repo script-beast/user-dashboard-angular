@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { BehaviorSubject, throwError } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 import { User } from '../../shared/models/user.model';
 
@@ -35,9 +35,7 @@ function isUserArray(value: unknown): value is User[] {
   return Array.isArray(value) && value.every(isUser);
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class UserService {
   private allUser: User[] = SEED_USERS;
   private readonly usersSubject = new BehaviorSubject<User[]>(SEED_USERS);
@@ -57,8 +55,7 @@ export class UserService {
       throw new Error('User with this email already exists');
     }
 
-    const nextIdx = this.allUser.length > 0 ? Math.max(...this.allUser.map((u) => u.idx)) + 1 : 0;
-    const updated = [...this.usersSubject.value, { ...user, idx: nextIdx }];
+    const updated = [...this.usersSubject.value, { ...user, idx: this.allUser.length }];
     this.usersSubject.next(updated);
     this.allUser = updated;
     this.writeUsersToStorage(updated);
@@ -101,7 +98,7 @@ export class UserService {
     const updated = this.allUser.filter(
       (se) => se.name.includes(search) || se.email.includes(search),
     );
-    this.usersSubject.next(updated)
+    this.usersSubject.next(updated);
     // this.writeUsersToStorage(updated);
   }
 

@@ -5,12 +5,7 @@
       <p>Manage and monitor your team</p>
     </div>
 
-    <button
-      class="add-user-btn"
-      type="button"
-      (click)="openUserForm()"
-      [disabled]="isLoadingUserForm || isUserFormOpen"
-    >
+    <button class="add-user-btn" type="button" (click)="openUserForm()" [disabled]="isUserFormOpen">
       <span class="add-user-btn__icon" aria-hidden="true">+</span>
       <span>Add User</span>
     </button>
@@ -173,8 +168,14 @@
   </section>
 
   <ng-template #modalHost></ng-template>
-
-  <div class="lazy-overlay" *ngIf="isLoadingUserForm" aria-label="Loading">
+  @if (isUserFormOpen) {
+    <app-user-form
+      [initialUser]="currentEditUser"
+      (userAdded)="onUserAdded($event, currentEditUser !== null)"
+      (close)="closeUserForm()"
+    ></app-user-form>
+  }
+  <div class="lazy-overlay" *ngIf="" aria-label="Loading">
     <div class="lazy-spinner" aria-hidden="true"></div>
   </div>
 </div>

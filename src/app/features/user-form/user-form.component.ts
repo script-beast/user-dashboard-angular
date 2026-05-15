@@ -4,6 +4,7 @@ import {
   EventEmitter,
   Input,
   Output,
+  OnInit,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -35,7 +36,7 @@ function roleIn(
   styleUrl: './user-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserFormComponent {
+export class UserFormComponent implements OnInit {
   @Input() initialUser: User | null = null;
 
   @Output() userAdded = new EventEmitter<User>();
@@ -62,6 +63,12 @@ export class UserFormComponent {
         validators: [Validators.required, this.roleValidator],
       }),
     });
+  }
+
+  ngOnInit() {
+    if (this.initialUser) {
+      this.prefill(this.initialUser);
+    }
   }
 
   // Programmatic prefill method — call this after creating the component instance
